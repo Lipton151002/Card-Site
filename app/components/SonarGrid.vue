@@ -9,6 +9,7 @@ interface SonarGridProps {
   spacing?: number
   dotRadius?: number
   baseOpacity?: number
+  peakOpacity?: number
   color?: string
   pingEvery?: number
   speed?: number
@@ -23,12 +24,13 @@ interface SonarGridProps {
 const props = withDefaults(defineProps<SonarGridProps>(), {
   spacing: 26,
   dotRadius: 1.4,
-  baseOpacity: 0.28,
+  baseOpacity: 0.15,
+  peakOpacity: 0.55,
   color: '',
   pingEvery: 2.4,
   speed: 260,
   ringWidth: 90,
-  amplitude: 2.2,
+  amplitude: 1.6,
   interactive: true,
   maxRings: 6,
   seedPing: true,
@@ -36,6 +38,10 @@ const props = withDefaults(defineProps<SonarGridProps>(), {
 })
 
 const MAX_DPR = 2
+const LOW_POWER_QUERY = '(max-width: 640px), (pointer: coarse)'
+const LOW_POWER_MAX_DPR = 1.5
+const LOW_POWER_FPS = 30
+const LOW_POWER_SPACING_SCALE = 1.35
 const TAU = Math.PI * 2
 
 const hostRef = ref<HTMLDivElement | null>(null)
@@ -57,11 +63,14 @@ onMounted(() => {
   if (!ctx) return
 
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
+  const lowPowerQuery = window.matchMedia(LOW_POWER_QUERY)
+  let lowPower = lowPowerQuery.matches
   let rings: Ring[] = []
   let width = 0
   let height = 0
   let raf = 0
   let timer = 0
+  let lastFrame = 0
   let visible = true
   let seeded = false
   let fill = ''
@@ -78,7 +87,8 @@ onMounted(() => {
   }
 
   const draw = (now: number) => {
-    const { spacing, dotRadius, baseOpacity, speed, ringWidth, amplitude } = props
+    const { dotRadius, baseOpacity, peakOpacity, speed, ringWidth, amplitude } = props
+    const spacing = props.spacing * (lowPower ? LOW_POWER_SPACING_SCALE : 1)
     const lifetime = (Math.hypot(width, height) + ringWidth) / speed
     rings = rings.filter(ring => (now - ring.born) / 1000 < lifetime)
     const live = rings.map((ring) => {
@@ -122,9 +132,10 @@ onMounted(() => {
     }
     ctx.fill()
 
+    const peak = Math.max(baseOpacity, peakOpacity)
     for (let k = 0; k < hot.length; k += 3) {
       const energy = hot[k + 2] ?? 0
-      ctx.globalAlpha = baseOpacity + (1 - baseOpacity) * energy
+      ctx.globalAlpha = baseOpacity + (peak - baseOpacity) * energy
       ctx.beginPath()
       ctx.arc(hot[k] ?? 0, hot[k + 1] ?? 0, dotRadius * (1 + amplitude * energy), 0, TAU)
       ctx.fill()
@@ -133,10 +144,10 @@ onMounted(() => {
   }
 
   const resize = () => {
-    const rect = host.getBoundingClientRect()
+    const rect = canvas.getBoundingClientRect()
     width = Math.max(1, Math.round(rect.width))
     height = Math.max(1, Math.round(rect.height))
-    const dpr = Math.min(window.devicePixelRatio || 1, MAX_DPR)
+    const dpr = Math.min(window.devicePixelRatio || 1, lowPower ? LOW_POWER_MAX_DPR : MAX_DPR)
     canvas.width = Math.round(width * dpr)
     canvas.height = Math.round(height * dpr)
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
@@ -163,6 +174,11 @@ onMounted(() => {
       draw(now)
       return
     }
+    if (lowPower && rings.length > 0 && now - lastFrame < 1000 / LOW_POWER_FPS) {
+      raf = requestAnimationFrame(tick)
+      return
+    }
+    lastFrame = now
     if (props.pingEvery > 0 && now >= nextPing) {
       const [x0, y0, x1, y1] = resolvePingArea()
       addRing(width * (x0 + Math.random() * (x1 - x0)), height * (y0 + Math.random() * (y1 - y0)), now)
@@ -188,13 +204,19 @@ onMounted(() => {
 
   const onPointerDown = (event: PointerEvent) => {
     if (!props.interactive || reduceMotion.matches) return
-    const rect = host.getBoundingClientRect()
+    const rect = canvas.getBoundingClientRect()
     addRing(event.clientX - rect.left, event.clientY - rect.top, performance.now())
     wake()
   }
 
   const onVisibilityChange = () => {
     if (!document.hidden) wake()
+  }
+
+  const onLowPowerChange = () => {
+    lowPower = lowPowerQuery.matches
+    resize()
+    wake()
   }
 
   const resizeObserver = new ResizeObserver(resize)
@@ -209,12 +231,13 @@ onMounted(() => {
 
   readColor()
   resize()
-  resizeObserver.observe(host)
+  resizeObserver.observe(canvas)
   intersectionObserver.observe(host)
   mutationObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['class', 'style', 'data-theme'] })
   host.addEventListener('pointerdown', onPointerDown)
   document.addEventListener('visibilitychange', onVisibilityChange)
   reduceMotion.addEventListener('change', wake)
+  lowPowerQuery.addEventListener('change', onLowPowerChange)
   wake()
 
   teardown = () => {
@@ -224,6 +247,7 @@ onMounted(() => {
     host.removeEventListener('pointerdown', onPointerDown)
     document.removeEventListener('visibilitychange', onVisibilityChange)
     reduceMotion.removeEventListener('change', wake)
+    lowPowerQuery.removeEventListener('change', onLowPowerChange)
     cancelAnimationFrame(raf)
     window.clearTimeout(timer)
     refresh = () => {}
@@ -244,8 +268,12 @@ watch(() => ({ ...props, pingArea: [...props.pingArea] }), () => refresh(), { fl
     <canvas
       ref="canvasRef"
       aria-hidden="true"
-      class="pointer-events-none absolute inset-0 -z-10 size-full text-primary"
+      class="pointer-events-none fixed inset-x-0 top-0 -z-10 h-lvh w-full text-primary"
       :style="color ? { color } : undefined"
+    />
+    <div
+      aria-hidden="true"
+      class="pointer-events-none fixed inset-x-0 top-0 -z-10 h-lvh w-full bg-[radial-gradient(ellipse_55%_50%_at_50%_50%,var(--color-page)_0%,transparent_100%)] opacity-85"
     />
     <slot />
   </div>
