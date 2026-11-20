@@ -1,4 +1,4 @@
-# Сайт-визитка / Business Card Site
+# Сайт-визитка / Card Site
 
 [Русский](#русский) · [English](#english)
 
