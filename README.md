@@ -128,7 +128,7 @@ docs/                   скриншот для README (на сайт не по�
 
 ### Лицензия
 
-Шаблон можно бесплатно использовать и менять, делать на нём личные и коммерческие сайты, в том числе на заказ для клиентов. **Нельзя продавать сам шаблон** или его изменённую версию как шаблон, тему или стартовый набор. Обязательно сохраняйте файл `LICENSE` с указанием автора.
+Шаблон можно бесплатно использовать и менять, делать на нём личные и коммерческие сайты, в том числе на заказ для клиентов. **Нельзя продавать сам шаблон** или его изменённую версию как шаблон, тему или стартовый набор.
 
 Шрифты, картинки и логотипы третьих лиц остаются под своими лицензиями. Полный текст — в файле [LICENSE](LICENSE).
 
@@ -258,7 +258,7 @@ docs/                   README screenshot (not part of the site)
 
 ### License
 
-You may use and modify the template for free and build personal and commercial websites with it, including websites for clients. **You may not sell the template itself** or a modified version of it as a template, theme or starter kit. Keep the `LICENSE` file with the author credit.
+You may use and modify the template for free and build personal and commercial websites with it, including websites for clients. **You may not sell the template itself** or a modified version of it as a template, theme or starter kit.
 
 Third-party fonts, images and logos remain under their own licenses. Full text: [LICENSE](LICENSE).
 
