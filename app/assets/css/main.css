@@ -1,0 +1,83 @@
+@layer properties, theme, base, primevue, components, utilities;
+
+@import "tailwindcss";
+@import "tailwindcss-primeui";
+
+@font-face {
+  font-family: "Acrom";
+  src: url("/fonts/Acrom-Regular.woff") format("woff"), url("/fonts/Acrom-Regular.ttf") format("truetype");
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Acrom";
+  src: url("/fonts/Acrom-Medium.woff") format("woff"), url("/fonts/Acrom-Medium.ttf") format("truetype");
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@theme {
+  --font-acrom: "Acrom", ui-sans-serif, system-ui, sans-serif;
+  --font-code: ui-monospace, "Cascadia Mono", "SF Mono", Menlo, Consolas, "Liberation Mono", monospace;
+  --color-code-keyword: #c678dd;
+  --color-code-name: #61afef;
+  --color-code-string: #98c379;
+  --color-code-punct: rgb(255 255 255 / 0.5);
+  --color-page: #1e1e1e;
+  --color-panel: #2c2c2c;
+  --color-glass: rgb(37 37 37 / 0.8);
+  --breakpoint-tiny: 361px;
+  --breakpoint-narrow: 541px;
+  --breakpoint-wide: 631px;
+  --animate-shine: shine 4.5s ease-in-out infinite;
+
+  @keyframes shine {
+    0% {
+      transform: translateX(-120%) skewX(-20deg);
+    }
+    45%,
+    100% {
+      transform: translateX(320%) skewX(-20deg);
+    }
+  }
+}
+
+@layer base {
+  html {
+    color-scheme: dark;
+    background-color: var(--color-page);
+  }
+
+  body {
+    background-color: var(--color-page);
+    font-family: var(--font-acrom);
+    color: #fff;
+  }
+}
+
+@utility bg-discord {
+  background: radial-gradient(56% 217.19% at 0% 100%, rgb(88 101 242 / 0.2) 0%, rgb(88 101 242 / 0) 94.27%), var(--color-panel);
+}
+
+@utility bg-telegram {
+  background: radial-gradient(56% 217.19% at 0% 100%, rgb(64 179 224 / 0.2) 0%, rgb(64 179 224 / 0) 100%), var(--color-panel);
+}
+
+@utility bg-youtube {
+  background: radial-gradient(56% 217.19% at 0% 100%, rgb(255 0 0 / 0.2) 0%, rgb(255 0 0 / 0) 94.27%), var(--color-panel);
+}
+
+@utility bg-github {
+  background: radial-gradient(56% 217.19% at 0% 100%, rgb(255 255 255 / 0.12) 0%, rgb(255 255 255 / 0) 94.27%), var(--color-panel);
+}
+
+@utility bg-figma {
+  background: radial-gradient(56% 217.19% at 0% 100%, rgb(162 89 255 / 0.2) 0%, rgb(162 89 255 / 0) 94.27%), var(--color-panel);
+}
+
+@utility bg-vk {
+  background: radial-gradient(56% 217.19% at 0% 100%, rgb(0 119 255 / 0.2) 0%, rgb(0 119 255 / 0) 94.27%), var(--color-panel);
+}
