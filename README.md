@@ -1,5 +1,7 @@
 # Сайт-визитка / Card Site
 
+![Скриншот сайта / Site screenshot](docs/screenshot.png)
+
 [Русский](#русский) · [English](#english)
 
 ---
@@ -121,6 +123,7 @@ app/plugins/            блокировка F12
 app/assets/css/main.css стили, цвета, шрифты
 shared/utils/domain.ts  обработка домена
 nuxt.config.ts          настройки Nuxt и PrimeVue
+docs/                   скриншот для README (на сайт не попадает)
 ```
 
 ### Лицензия
@@ -250,6 +253,7 @@ app/plugins/            F12 blocking
 app/assets/css/main.css styles, colors, fonts
 shared/utils/domain.ts  domain handling
 nuxt.config.ts          Nuxt and PrimeVue settings
+docs/                   README screenshot (not part of the site)
 ```
 
 ### License
